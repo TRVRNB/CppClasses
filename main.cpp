@@ -15,7 +15,9 @@ int main() { // main function
     cout << "\nEnter a command: ";
     cin >> input;
     if (strcmp(input, "HELP") == 0){ // HELP function
-      cout << "'HELP': returns a list of commands";
+      cout << "'HELP': returns a list of commands\n";
+      cout << "'QUIT': halts the program\n";
+      cout << std::flush;
     }
   }
   
