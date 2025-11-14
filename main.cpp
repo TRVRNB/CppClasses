@@ -15,10 +15,12 @@ int main() { // main function
   cout << "Enter 'HELP' for a list of commands.\n";
   char input[81];
   while (strcmp(input, "QUIT") != 0){ // main loop, QUIT function
-    cout << "\nEnter a command: ";
+    cout << "\n$ ";
     cin >> input;
     if (strcmp(input, "HELP") == 0){ // HELP function
       cout << "'HELP': returns a list of commands\n";
+      cout << "'ADD': add to the list of media\n";
+      cout << "'SEARCH': search for a specific entry, to delete or to view\n";
       cout << "'QUIT': halts the program\n";
       cout << std::flush;
     }
