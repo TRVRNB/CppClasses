@@ -25,6 +25,5 @@ movie::~movie(){ // destructor
 }
 
 char* movie::getDirector(){ // returns the director
-  static char* d2 = director; 
-  return d2;
+  return director;
 }

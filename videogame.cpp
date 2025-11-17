@@ -11,8 +11,7 @@ videogame::videogame(char*vtitle, int vyear, float vrating, char*vpublisher):med
 }
 
 char* videogame::getPublisher(){ // returns the publisher
-  static char* d2 = publisher; 
-  return d2;
+  return publisher;
 }
 
 float videogame::getRating(){ // returns the rating

@@ -9,8 +9,7 @@ media::media(char*vtitle, int vyear){
 }
 
 char* media::getTitle(){ // returns the title
-  static char* title2 = title; // the pointer to this will be returned. in my testing, it gets promptly overwritten about 2/3 of the time when it is not static, and this is likely system-dependent
-  return title2;
+  return title;
 }
 
 media::~media(){ // destructor
@@ -20,4 +19,4 @@ media::~media(){ // destructor
 int media::getYear(){ // returns the year
   return *year;
 }
-  
+

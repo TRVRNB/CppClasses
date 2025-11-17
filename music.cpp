@@ -12,8 +12,7 @@ music::music(char*vtitle, int vyear, char*vpublisher, float vduration, char*vart
 }
 
 char* music::getPublisher(){ // returns the publisher
-  static char* d2 = publisher; 
-  return d2;
+  return publisher;
 }
 
 float music::getDuration(){ // returns the duration
@@ -25,6 +24,5 @@ music::~music(){ // destructor
 }
 
 char* music::getArtist(){ // returns the artist
-  static char* d2 = artist; 
-  return d2;
+  return artist;
 }

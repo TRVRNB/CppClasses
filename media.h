@@ -11,7 +11,7 @@ public:
   media(char* vtitle, int vyear); 
   char* getTitle();
   int getYear();
-  ~media();
+  virtual ~media();
 };
 
 #endif
