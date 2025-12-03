@@ -1,195 +1,178 @@
 #include <iostream>
-#include <vector>
 #include <cstring>
-#include "media.h"
-#include "movie.h"
-#include "music.h"
-#include "videogame.h"
+#include <vector>
+#include <algorithm>
+#include <map>
+#include "room.h"
 using namespace std;
 
-int main() {
-	std::vector<media*> media_list;
-	cout << "Enter 'HELP' for a list of commands.\n";
-	char input[81] = "";
-	while (strcmp(input, "QUIT") != 0) { // quit
-		cout << "\n$ Enter a command: ";
-		cin >> input;
-		cin.ignore(1000, '\n');
+char room_data[20][10][401] = { // definitions of rooms, excluding special logic
+  {"Name", "Undiscovered Name", "Description", "Detailed Description", "Item", "Key", "NORTH", "EAST", "SOUTH", "WEST"}, // example
+  {"old bedroom", "old bedroom", "You are in an empty, dusty bedroom.", "The light flickers. A dark key is on the mattress.", "grey key", "NONE", "NONE", "thin hallway", "NONE", "NONE"},
+  {"thin hallway", "dusty door", "You are in a hallway. The hallway is so thin, the walls seem to be shifting...", "There is nothing noteworthy in this room.", "NONE", "grey key", "NONE", "NONE", "NONE", "old bedroom"},
+};
+int ROOM_COUNT = 3;
 
-		if (strcmp(input, "HELP") == 0) { // help
-			cout << "'HELP': returns a list of commands\n";
-			cout << "'ADD': add to the list of media\n";
-			cout << "'SEARCH': search for a specific entry, to delete or to view\n";
-			cout << "'QUIT': halts the program\n";
-			cout << std::flush;
+namespace zuul{ // this is so ROOMS can be used across functions without passing by reference
+  vector<room*> ROOMS;
+};
 
-		} else if (strcmp(input, "ADD") == 0) { // add
-			cout << "$ movie, music, or videogame?: " << flush;
-			char input1[81];
-			cin >> input1;
-			cin.ignore(1000, '\n');
-			if (strcmp(input1, "movie") == 0) { // add movie
-				char title[81];
-				cout << "$ Enter a title: " << flush;
-				cin.getline(title, 80);
-				char director[81];
-				cout << "$ Enter a director: " << flush;
-				cin.getline(director, 80);
-				int year;
-				cout << "$ Enter a year: " << flush;
-				cin >> year;
-				cin.ignore(1000, '\n');
-				float rating;
-				cout << "$ Enter a rating: " << flush;
-				cin >> rating;
-				cin.ignore(1000, '\n');
-				float duration;
-				cout << "$ Enter a duration: " << flush;
-				cin >> duration;
-				cin.ignore(1000, '\n');
 
-				char* title_c = new char[strlen(title)+1];
-				strcpy(title_c, title);
-				char* director_c = new char[strlen(director)+1];
-				strcpy(director_c, director);
+// search for room using the name
+room* search_for_room(char* room_name){
+  using namespace zuul;
+  for (room* current_room : ROOMS){
+    if (strcmp(current_room->name, room_name) == 0){
+      return current_room;
+    }
+  }
+  return ROOMS[0]; // edge case, return the default room
+}
 
-				movie* newmedia = new movie(title_c, year, rating, duration, director_c);
-				media_list.push_back(newmedia);
-			}
-			if (strcmp(input1, "videogame") == 0) { // add videogame
-				char title[81];
-				cout << "$ Enter a title: " << flush;
-				cin.getline(title, 80);
-				char publisher[81];
-				cout << "$ Enter a publisher: " << flush;
-				cin.getline(publisher, 80);
-				int year;
-				cout << "$ Enter a year: " << flush;
-				cin >> year;
-				cin.ignore(1000, '\n');
-				float rating;
-				cout << "$ Enter a rating: " << flush;
-				cin >> rating;
-				cin.ignore(1000, '\n');
+// main function
+int main(){
+  // first, build ROOMS
+  using namespace zuul;
+  room* current_room;
+  for (int i = 1; i < ROOM_COUNT; i++){ // starts at 1 to exclude the 'example' room
+    current_room = new room;
+    // room variables are defined here rather than through an initializer
+    strcpy(current_room->name, room_data[i][0]); // name
+    strcpy(current_room->undiscovered_name, room_data[i][1]); // undiscovered name
+    strcpy(current_room->description, room_data[i][2]); // description
+    strcpy(current_room->detailed_description, room_data[i][3]); // detailed description
+    strcpy(current_room->item, room_data[i][4]); // item to pick up
+    strcpy(current_room->key, room_data[i][5]); // key required for entry
+    // exits
+    strcpy(current_room->NORTH, room_data[i][6]); // NORTH
+    strcpy(current_room->EAST, room_data[i][7]); // EAST
 
-				char* title_c = new char[strlen(title)+1];
-				strcpy(title_c, title);
-				char* publisher_c = new char[strlen(publisher)+1];
-				strcpy(publisher_c, publisher);
-
-				videogame* newmedia = new videogame(title_c, year, rating, publisher_c);
-				media_list.push_back(newmedia);
-			}
-			if (strcmp(input1, "music") == 0) { // add music
-				char title[81];
-				cout << "$ Enter a title: " << flush;
-				cin.getline(title, 80);
-				char artist[81];
-				cout << "$ Enter an artist: " << flush;
-				cin.getline(artist, 80);
-				int year;
-				cout << "$ Enter a year: " << flush;
-				cin >> year;
-				cin.ignore(1000, '\n');
-				char publisher[81];
-				cout << "$ Enter a publisher: " << flush;
-				cin.getline(publisher, 80);
-				float duration;
-				cout << "$ Enter a duration: " << flush;
-				cin >> duration;
-				cin.ignore(1000, '\n');
-
-				char* title_c = new char[strlen(title)+1];
-				strcpy(title_c, title);
-				char* artist_c = new char[strlen(artist)+1];
-				strcpy(artist_c, artist);
-				char* publisher_c = new char[strlen(publisher)+1];
-				strcpy(publisher_c, publisher);
-
-				music* newmedia = new music(title_c, year, publisher_c, duration, artist_c);
-				media_list.push_back(newmedia);
-			}
-
-		} else if (strcmp(input, "SEARCH") == 0) { // search
-			char input1[81];
-			cout << "$ Enter a title or year to search for: " << flush;
-			cin.getline(input1, 80);
-			vector<media*> results;
-			// check if it is a year or not
-			bool isnum = true;
-			for (int i = 0; input1[i] != '\0'; i++) {
-				if (!isdigit(static_cast<unsigned char>(input1[i]))) {
-					isnum = false;
-					break;
-				}
-			}
-			int year = 0;
-			if (isnum) {
-				year = atoi(input1);
-			}
-			// look over all the media
-			for (media* m : media_list) {
-				bool match = false;
-				if (isnum && m->getYear() == year) {
-					match = true;
-				}
-				if (!isnum && strcmp(m->getTitle(), input1) == 0) {
-					match = true;
-				}
-				if (match) {
-					results.push_back(m);
-					cout << "\n";
-					media* pMedia = m;
-					// print the type out
-					movie* mo = dynamic_cast<movie*>(pMedia);
-					if (mo != NULL) {
-						cout << mo->getTitle() << ", "
-						<< mo->getYear() << ", "
-						<< mo->getDirector() << ", "
-						<< mo->getDuration() << ", "
-						<< mo->getRating() << "\n";
-					} else {
-						videogame* v = dynamic_cast<videogame*>(pMedia);
-						if (v != NULL) {
-							cout << v->getTitle() << ", "
-							<< v->getYear() << ", "
-							<< v->getPublisher() << ", "
-							<< v->getRating() << "\n";
-						} else {
-							music* mu = dynamic_cast<music*>(pMedia);
-							if (mu != NULL) {
-								cout << mu->getTitle() << ", "
-								<< mu->getArtist() << ", "
-								<< mu->getYear() << ", "
-								<< mu->getDuration() << ", "
-								<< mu->getPublisher() << "\n";
-							}
-						}
-					}
-				}
-			}
-			// if there are results, ask for deletion
-			if (!results.empty()) {
-				cout << '\n';
-				cout << "$ Choose an entry index to delete, with the first result being 0 (type -1 to skip): " << flush;
-				int to_delete = -1;
-				cin >> to_delete;
-				cin.ignore(1000, '\n');
-				if (to_delete >= 0 && to_delete < static_cast<int>(results.size())) {
-					// find the object in media_list and remove it
-					for (auto it = media_list.begin(); it != media_list.end(); ++it) {
-						if (*it == results[to_delete]) {
-							delete *it; // this should call the destructor
-							media_list.erase(it);  // remove from vector
-							break;
-						}
-					}
-					cout << "Entry deleted.\n";
-				}
-			}
-		}
+    strcpy(current_room->SOUTH, room_data[i][8]); // SOUTH
+    strcpy(current_room->WEST, room_data[i][9]); // WEST
+    ROOMS.push_back(current_room);
+  }
+  // other variables
+  vector<const char*> ITEMS = {"NONE"}; // inventory
+  room* c_room = ROOMS[0];
+  c_room->explored = true;
+  // opening message
+  cout << "\nYou are locked in an empty, dark bedroom.\nYou have no idea where you came from or where you'll go.\nTo the east, there is a locked door.\nTo see a list of commands, type 'HELP'.\n" << flush;
+  char input[81] = ""; // input string, start empty
+  char input1[81] = "";
+  char input2[81] = "";
+  char input3[81] = "";
+  while (strcmp(input, "QUIT") != 0){ // QUIT
+    cout << "$ Enter a command: " << flush;
+    cin >> input;
+    if (strcmp(input, "HELP") == 0){ // HELP
+      cout << "HELP: return a list of commands\n" << flush;
+      cout << "QUIT: quit the game prematurely\n" << flush;
+      cout << "SEARCH: look through this room\n" << flush;
+      cout << "MOVE: move to a nearby room\n" << flush;
+      cout << "PICK: pick up an item in the room (if one exists)\n" << flush;
+      cout << "USE: use one item on another\n" << flush;
+      cout << "DROP: drop an item into this room, if it is empty\n" << flush;
+    } else if (strcmp(input, "SEARCH") == 0){ // SEARCH
+      cout << c_room->detailed_description << '\n' << flush;
+    } else if (strcmp(input, "MOVE") == 0){ // MOVE
+      cout << "$ Which direction ('NORTH', 'SOUTH', 'EAST', 'WEST')?: " << flush;
+      cin >> input1;
+      char go_to[81] = "NONE"; // default case, do nothing
+      if (strcmp(input1, "NORTH") == 0){
+	strcpy(go_to, c_room->NORTH);
+      } else if (strcmp(input1, "EAST") == 0){
+	strcpy(go_to, c_room->EAST);
+      } else if (strcmp(input1, "SOUTH") == 0){
+	strcpy(go_to, c_room->SOUTH);
+      } else if (strcmp(input1, "WEST") == 0){
+	strcpy(go_to, c_room->WEST);
+      }
+      // move room, if a room was found
+      if (strcmp(go_to, "NONE") != 0){
+	char* go_to1 = go_to;
+	room* to_visit = search_for_room(go_to1);
+	// search for key in inventory
+	bool has_key = false;
+	for (int i = 0; i < ITEMS.size(); i++){ // iterate over every item, check for equality
+	  if (strcmp(ITEMS[i], to_visit->key) == 0){ // NONE is the first item in the ITEMS vector by default. this should prevent a crash here if the player has no items, and allow entry into any room with no key; i need to prevent the player from dropping this NONE item later
+	    has_key = true;
+	    strcpy(to_visit->key, ITEMS[i]); // remove the key requirement permanently, which should prevent the player from softlocking themselves by leaving the keys in the wrong room
+	    // break would be nice here, but it's against the rules
+	  }
 	}
-
-	cout << "Goodbye!\n";
-	return 0;
+	if (has_key){
+	  c_room = to_visit;
+	  c_room->explored = true; // in the future, this will be described based on the interior rather than exterior when looking at neighboring rooms
+	  cout << '\n';
+	  cout << c_room->description << "." << endl;;
+	  // describe neighboring rooms
+	  if (strcmp(c_room->NORTH, "NONE") != 0){ // NORTH
+	    room* to_describe = search_for_room(c_room->NORTH);
+	    if (to_describe->explored){
+	      cout << "To the north, there is the " << to_describe->name << '.' << endl; 
+	    } else {
+	      cout << "To the north, there is a " << to_describe->undiscovered_name << '.' << endl;
+	    }
+	  }
+	  if (strcmp(c_room->EAST, "NONE") != 0){ // EAST
+	    room* to_describe = search_for_room(c_room->EAST);
+	    if (to_describe->explored){
+	      cout << "To the east, there is the " << to_describe->name << '.' << endl; 
+	    } else {
+	      cout << "To the east, there is a " << to_describe->undiscovered_name << '.' << endl;
+	    }
+	  }
+	  if (strcmp(c_room->SOUTH, "NONE") != 0){ // SOUTH
+	    room* to_describe = search_for_room(c_room->SOUTH);
+	    if (to_describe->explored){
+	      cout << "To the south, there is the " << to_describe->name << '.' << endl; 
+	    } else {
+	      cout << "To the south, there is a " << to_describe->undiscovered_name << '.' << endl;
+	    }
+	  }
+	  if (strcmp(c_room->WEST, "NONE") != 0){ // WEST
+	    room* to_describe = search_for_room(c_room->WEST);
+	    if (to_describe->explored){
+	      cout << "To the west, there is the " << to_describe->name << '.' << endl; 
+	    } else {
+	      cout << "To the west, there is a " << to_describe->undiscovered_name << '.' << endl;
+	    }
+	  }
+	} else { // hasn't key
+	  cout << "The door won't budge." << endl;
+	}
+      }
+    } else if (strcmp(input, "PICK") == 0){ // PICK
+      // check for item, then add it to inventory
+      if (strcmp(c_room->item, "NONE") != 0){
+	static char item1[81]; // need to make a static char array since the room item will quickly change to NONE
+	strcpy(item1, c_room->item);
+	const char* item = item1;
+	ITEMS.push_back(item);
+	cout << "Picked up " << item << "." << endl;
+	strcpy(c_room->item, "NONE"); // get rid of this item from the room
+      } else {
+	cout << "There is nothing to pick up." << endl;
+      }
+    } else if (strcmp(input, "USE") == 0){ // USE
+      // this will be used to make the gem key
+      
+    } else if (strcmp(input, "DROP") == 0){ // DROP
+      // drop an item on the ground, if there is space
+      if (strcmp(c_room->item, "NONE") == 0){
+	for (int i = 0; i < ITEMS.size(); i++){
+	  cout << ITEMS[i] << endl;
+	}
+	cout << "What item do you want to drop?:" << flush;
+	cin.ignore();
+	cin.getline(input1, 80);
+	for (int i = 0; i < ITEMS.size(); i++){
+	  
+	}
+      } else { // if there is no room
+	cout << "This room already has an item. How could a room possibly fit two items?" << endl;
+      }
+    }
+  }
+  return 0;
 }
